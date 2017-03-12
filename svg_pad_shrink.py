@@ -6,6 +6,8 @@ import argparse
 
 class SVG_Pad_Shrink:
     MIL_TO_PT = 0.01388729089
+    start_re = 'm ([0-9\.]*,[0-9\.]*) .*'
+    points_re = 'm [0-9\.]*,[0-9\.]* ([\-0-9\.]*,[\-0-9\.]*) ([\-0-9\.]*,[\-0-9\.]*) ([\-0-9\.]*,[\-0-9\.]*) z.*'
 
     def __init__(self, infile, outfile, shrink_mil):
         self.infile = infile
@@ -18,14 +20,12 @@ class SVG_Pad_Shrink:
         infile.close()
 
     def start_from_string(self, string):
-        start_re = 'm ([0-9\.]*,[0-9\.]*) .*'
-        start = re.sub(start_re,'\\1',string)
+        start = re.sub(self.start_re,'\\1',string)
         start_arr = start.split(',')
         return (float(start_arr[0]), float(start_arr[1]))
 
     def points_from_string(self, string):
-        points_re = 'm [0-9\.]*,[0-9\.]* ([\-0-9\.]*,[\-0-9\.]*) ([\-0-9\.]*,[\-0-9\.]*) ([\-0-9\.]*,[\-0-9\.]*) z.*'
-        points = re.sub(points_re,'\\1 \\2 \\3',string)
+        points = re.sub(self.points_re,'\\1 \\2 \\3',string)
         points_arr = points.split(' ')
         point_coord_ret = []
         for point in points_arr:
@@ -34,8 +34,7 @@ class SVG_Pad_Shrink:
         return(point_coord_ret)
 
     def check_four_points(self, string):
-        points_re = 'm [0-9\.]*,[0-9\.]* ([\-0-9\.]*,[\-0-9\.]*) ([\-0-9\.]*,[\-0-9\.]*) ([\-0-9\.]*,[\-0-9\.]*) z.*'
-        if re.match(points_re,string):
+        if re.match(self.points_re,string):
             return True
         return False
 
